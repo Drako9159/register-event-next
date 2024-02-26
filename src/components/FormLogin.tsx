@@ -45,24 +45,30 @@ export default function FormLogin({ isLogin }: FormLoginProps) {
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <div className="text-center mb-4">
-        <h1 className="text-2xl font-semibold">{isLogin ? "Login": "Register"}</h1>
+        <h1 className="text-2xl font-semibold">
+          {isLogin ? "Login" : "Register"}
+        </h1>
       </div>
       <div className="bg-white p-8 rounded shadow-md w-96 mb-4 text-slate-500">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Joe Mef" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            
+            {isLogin || (
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Joe Mef" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
             <FormField
               control={form.control}
               name="email"
@@ -90,7 +96,7 @@ export default function FormLogin({ isLogin }: FormLoginProps) {
                 </FormItem>
               )}
             />
-            <Button type="submit">Submit</Button>
+            <Button type="submit">{isLogin ? "Login" : "Register"}</Button>
           </form>
         </Form>
       </div>

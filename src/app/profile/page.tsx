@@ -1,19 +1,16 @@
-import Link from "next/link";
 
-export default function User() {
+export default function UserProfile() {
   return (
     <div className="flex items-center justify-center h-screen text-slate-700">
       <div className="flex flex-col items-center justify-center bg-white p-8 rounded shadow-md w-96">
         <div className="mb-4">
-          <Link href="/profile" >
-            <img
-              src={
-                "https://w7.pngwing.com/pngs/129/292/png-transparent-female-avatar-girl-face-woman-user-flat-classy-users-icon.png"
-              }
-              alt="User Avatar"
-              className="w-16 h-16 rounded-full "
-            />
-          </Link>
+          <img
+            src={
+              "https://w7.pngwing.com/pngs/129/292/png-transparent-female-avatar-girl-face-woman-user-flat-classy-users-icon.png"
+            }
+            alt="User Avatar"
+            className="w-16 h-16 rounded-full "
+          />
         </div>
         <div className="mb-2">
           <p className="text-center text-gray-800">{"Ana Maria"}</p>
