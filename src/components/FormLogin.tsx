@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
 const formSchema = z.object({
   username: z.string().min(2, {
@@ -52,7 +53,6 @@ export default function FormLogin({ isLogin }: FormLoginProps) {
       <div className="bg-white p-8 rounded shadow-md w-96 mb-4 text-slate-500">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-            
             {isLogin || (
               <FormField
                 control={form.control}
@@ -96,6 +96,37 @@ export default function FormLogin({ isLogin }: FormLoginProps) {
                 </FormItem>
               )}
             />
+
+            {isLogin || (
+              <div className="flex flex-col">
+                <div className="flex items-center">
+                  <input type="checkbox" id="terms" className="mr-2" />
+                  <label htmlFor="terms" className="text-gray-700">
+                    Accept terms and conditions
+                  </label>
+                </div>
+                <Link
+                  href="/terms-conditions"
+                  className="hover:underline text-slate-500"
+                >
+                  Read Terms and conditions
+                </Link>
+              </div>
+            )}
+
+            {isLogin && (
+              <div className="flex items-center">
+                <div className="mb-4">
+                  <a
+                    href="/olvido-contrasena"
+                    className="hover:underline text-slate-700"
+                  >
+                    ¿Forget password?
+                  </a>
+                </div>
+              </div>
+            )}
+
             <Button type="submit">{isLogin ? "Login" : "Register"}</Button>
           </form>
         </Form>
