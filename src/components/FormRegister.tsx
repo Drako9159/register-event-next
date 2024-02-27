@@ -17,10 +17,11 @@ import { FormEvent, useState } from "react";
 import { redirect, useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import axios, { AxiosError } from "axios";
-import { useToast } from "./ui/use-toast";
-import { Toaster } from "./ui/toaster";
 
 const formSchema = z.object({
+  username: z.string().min(2, {
+    message: "Username must be at least 2 characters.",
+  }),
   email: z.string().email({ message: "Email is required" }),
   password: z.string().min(4, { message: "Password incorrect" }),
 });
@@ -29,18 +30,20 @@ interface FormLoginProps {
   isLogin?: boolean;
 }
 
-interface UserDataLogin {
+interface UserData {
   email: string;
+  name: string;
   password: string;
 }
 
-export default function FormLogin() {
+export default function FormRegister() {
   const [error, setError] = useState("");
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      username: "",
       email: "",
       password: "",
     },
@@ -51,43 +54,56 @@ export default function FormLogin() {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
 
-    const userData: UserDataLogin = {
+    console.log(values);
+
+    const userData: UserData = {
       email: values.email,
+      name: values.username,
       password: values.password,
     };
 
-    login(userData);
+    register(userData);
   }
 
-  const { toast } = useToast();
-  async function login(values: UserDataLogin) {
-    const res = await signIn("credentials", {
-      email: values.email,
-      password: values.password,
-      redirect: false,
-    });
-
-    if (res?.error) {
-      console.log(res.error);
-      toast({ title: "Error", description: res.error as string });
-      return setError(res.error as string);
-    }
-    if (res?.ok) {
-
-      toast({ title: "Approved", description: "You have access" });
-      return router.push("/profile");
+  async function register(values: UserData) {
+    try {
+      const signUpResponse = await axios.post("/api/auth/signup", values);
+      const res = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      });
+      if (res?.ok) return router.push("/profile");
+    } catch (error) {
+      console.log(error);
+      if (error instanceof AxiosError) {
+        setError(error.response?.data.message);
+      }
     }
   }
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
-      <Toaster />
       <div className="text-center mb-4">
-        <h1 className="text-2xl font-semibold">Login</h1>
+        <h1 className="text-2xl font-semibold">Register</h1>
       </div>
       <div className="bg-white p-8 rounded shadow-md w-96 mb-4 text-slate-500">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Joe Mef" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="email"
@@ -116,18 +132,22 @@ export default function FormLogin() {
               )}
             />
 
-            <div className="flex items-center">
-              <div className="mb-4">
-                <a
-                  href="/olvido-contrasena"
-                  className="hover:underline text-slate-700"
-                >
-                  ¿Forget password?
-                </a>
+            <div className="flex flex-col">
+              <div className="flex items-center">
+                <input type="checkbox" id="terms" className="mr-2" />
+                <label htmlFor="terms" className="text-gray-700">
+                  Accept terms and conditions
+                </label>
               </div>
+              <Link
+                href="/terms-conditions"
+                className="hover:underline text-slate-500"
+              >
+                Read Terms and conditions
+              </Link>
             </div>
 
-            <Button type="submit">Login</Button>
+            <Button type="submit">Register</Button>
           </form>
         </Form>
       </div>

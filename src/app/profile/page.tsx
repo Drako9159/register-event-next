@@ -1,7 +1,30 @@
+"use client";
+
+import { Toaster } from "@/components/ui/toaster";
+import { SessionProvider, useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+
+interface userInfo {
+  name: string;
+  email: string;
+}
 
 export default function UserProfile() {
+  const { data: session, status } = useSession();
+  const [userInfo, setUserInfo] = useState<userInfo>();
+
+  useEffect(() => {
+    if (session && session.user) {
+      setUserInfo({
+        name: session.user.name as string,
+        email: session.user.email as string,
+      });
+    }
+  }, [session]);
+
   return (
     <div className="flex items-center justify-center h-screen text-slate-700">
+      <Toaster />
       <div className="flex flex-col items-center justify-center bg-white p-8 rounded shadow-md w-96">
         <div className="mb-4">
           <img
@@ -13,7 +36,13 @@ export default function UserProfile() {
           />
         </div>
         <div className="mb-2">
-          <p className="text-center text-gray-800">{"Ana Maria"}</p>
+          <p className="text-center text-gray-800">
+            {userInfo?.name}
+            <br />
+            {userInfo?.email}
+          </p>
+
+          {/* <pre>{JSON.stringify({ session, status }, null, 2)}</pre> */}
         </div>
 
         <p>Use this code for register your visit</p>
