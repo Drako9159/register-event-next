@@ -80,6 +80,18 @@ export default function FormRegister({ setIsLogin }: FormRegisterProps) {
   async function register(values: UserData) {
     try {
       const signUpResponse = await axios.post("/api/auth/signup", values);
+      login(values);
+    } catch (error) {
+      console.log(error);
+      if (error instanceof AxiosError) {
+        toast({ title: "Error", description: error?.response?.data?.message });
+        setError(error.response?.data.message);
+      }
+    }
+  }
+
+  async function login(values: UserData) {
+    try {
       const res = await signIn("credentials", {
         email: values.email,
         password: values.password,
@@ -162,7 +174,7 @@ export default function FormRegister({ setIsLogin }: FormRegisterProps) {
                 <FormItem>
                   <FormLabel>Confirm password</FormLabel>
                   <FormControl>
-                    <Input placeholder="****" {...field}/>
+                    <Input placeholder="****" {...field} />
                   </FormControl>
                   {/* <FormDescription>Define one password</FormDescription> */}
                   <FormMessage />

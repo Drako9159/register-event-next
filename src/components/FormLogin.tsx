@@ -121,7 +121,7 @@ export default function FormLogin({ setIsLogin }: FormLoginProps) {
             <div className="flex flex-col">
               <div className="mb-4">
                 <a
-                  href="/olvido-contrasena"
+                  href="/forget-password"
                   className="hover:underline text-slate-700"
                 >
                   ¿Forget password?

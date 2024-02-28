@@ -1,7 +1,7 @@
 "use client";
 
 import { Toaster } from "@/components/ui/toaster";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 interface UserInfo {
@@ -15,11 +15,9 @@ export default function UserProfile() {
 
   useEffect(() => {
     if (session && session.user) {
-      console.log(session)
       setUserInfo({
         name: session.user.name as string,
         email: session.user.email as string,
-        
       });
     }
   }, [session]);
@@ -44,7 +42,7 @@ export default function UserProfile() {
             {userInfo?.email}
           </p>
 
-          <pre>{JSON.stringify({ session, status }, null, 2)}</pre> 
+          {/* <pre>{JSON.stringify({ session, status }, null, 2)}</pre>  */}
         </div>
 
         <p>Use this code for register your visit</p>
@@ -57,6 +55,14 @@ export default function UserProfile() {
         />
         <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
           Refresh code
+        </button>
+        <button
+          onClick={() => {
+            signOut();
+          }}
+          className="bg-orange-500 text-white px-4 my-5 py-2 rounded hover:bg-orange-700"
+        >
+          Sign Out
         </button>
       </div>
     </div>

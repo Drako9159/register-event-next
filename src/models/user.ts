@@ -24,6 +24,9 @@ const userSchema = new Schema({
   confirmationToken: {
     type: String,
   },
+  resetPasswordToken: {
+    type: String,
+  },
   confirmed: {
     type: Boolean,
     default: false,

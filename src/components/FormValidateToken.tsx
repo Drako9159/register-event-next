@@ -25,14 +25,27 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "./ui/use-toast";
 import { getSession } from "next-auth/react";
-import SendMail from "@/app/hooks/SendMail";
+import SendMailConfirmation from "@/app/hooks/SendMailConfirmation";
 
 interface EmailValidate {
   email: string;
 }
 
 export default function FormValidateToken() {
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+
+  useEffect(() => {
+    async function session() {
+      const user: any = await getSession();
+      setEmail(user?.user?.email);
+      if (email !== "") {
+        SendMailConfirmation(email);
+      }
+    }
+    session();
+  }, [email]);
+
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -56,18 +69,16 @@ export default function FormValidateToken() {
     validateToken(code);
   }
 
-  async function validateToken(code: string) {
+  async function validateToken(token: string) {
     try {
-      const user = await getSession();
-      const email = user?.user?.email as string;
-
-      SendMail(email);
+      // const user: any = await getSession();
+      // const email = user?.user?.email;
 
       const res = await axios.post(
         "/api/auth/actions/confirmation/validate-token",
         {
           email,
-          code,
+          token,
         }
       );
       toast({ title: "Validated", description: "User validated" });
