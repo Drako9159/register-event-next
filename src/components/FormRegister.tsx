@@ -15,19 +15,27 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { redirect, useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import axios, { AxiosError } from "axios";
+import { Toaster } from "./ui/toaster";
+import { useToast } from "./ui/use-toast";
 
-const formSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
-  email: z.string().email({ message: "Email is required" }),
-  password: z.string().min(4, { message: "Password incorrect" }),
-});
+const formSchema = z
+  .object({
+    username: z.string().min(2, {
+      message: "Username must be at least 2 characters.",
+    }),
+    email: z.string().email({ message: "Email is required" }),
+    password: z.string().min(4, { message: "Password incorrect" }),
+    confirmPassword: z.string().min(4, { message: "Password incorrect" }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
-interface FormLoginProps {
-  isLogin?: boolean;
+interface FormRegisterProps {
+  setIsLogin: (isLogin: boolean) => void;
 }
 
 interface UserData {
@@ -36,8 +44,9 @@ interface UserData {
   password: string;
 }
 
-export default function FormRegister() {
-  const [error, setError] = useState("");
+export default function FormRegister({ setIsLogin }: FormRegisterProps) {
+  const [error, setError] = useState<string>("");
+  const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -46,6 +55,7 @@ export default function FormRegister() {
       username: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
@@ -65,6 +75,8 @@ export default function FormRegister() {
     register(userData);
   }
 
+  const { toast } = useToast();
+
   async function register(values: UserData) {
     try {
       const signUpResponse = await axios.post("/api/auth/signup", values);
@@ -73,7 +85,18 @@ export default function FormRegister() {
         password: values.password,
         redirect: false,
       });
-      if (res?.ok) return router.push("/profile");
+      if (res?.error) {
+        console.log(res.error);
+        toast({ title: "Error", description: res.error as string });
+        return setError(res.error as string);
+      }
+      const user: any = await getSession();
+      if (res?.ok && user?.user?.confirmed!) {
+        toast({ title: "Approved", description: "You have access" });
+        return router.push("/profile");
+      } else {
+        return router.push("/validate-account");
+      }
     } catch (error) {
       console.log(error);
       if (error instanceof AxiosError) {
@@ -84,6 +107,7 @@ export default function FormRegister() {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
+      <Toaster />
       <div className="text-center mb-4">
         <h1 className="text-2xl font-semibold">Register</h1>
       </div>
@@ -131,10 +155,32 @@ export default function FormRegister() {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm password</FormLabel>
+                  <FormControl>
+                    <Input placeholder="****" {...field}/>
+                  </FormControl>
+                  {/* <FormDescription>Define one password</FormDescription> */}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <div className="flex flex-col">
               <div className="flex items-center">
-                <input type="checkbox" id="terms" className="mr-2" />
+                <input
+                  type="checkbox"
+                  id="terms"
+                  className="mr-2"
+                  checked={acceptedTerms}
+                  onChange={() => {
+                    setAcceptedTerms(!acceptedTerms);
+                  }}
+                />
                 <label htmlFor="terms" className="text-gray-700">
                   Accept terms and conditions
                 </label>
@@ -145,9 +191,19 @@ export default function FormRegister() {
               >
                 Read Terms and conditions
               </Link>
+
+              <button
+                type="button"
+                onClick={() => setIsLogin(true)}
+                className="hover:underline text-blue-500 font-bold"
+              >
+                You already have an account?
+              </button>
             </div>
 
-            <Button type="submit">Register</Button>
+            <Button type="submit" disabled={!acceptedTerms}>
+              Register
+            </Button>
           </form>
         </Form>
       </div>

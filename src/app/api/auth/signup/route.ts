@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 
 export async function POST(request: any) {
   const { name, password, email } = await request.json();
+
   if (!password || password < 6) {
     return NextResponse.json(
       { message: "Password must be at least 6 characters" },
@@ -29,7 +30,7 @@ export async function POST(request: any) {
     return NextResponse.json({
       _id: savedUser._id,
       email: savedUser.email,
-      name: savedUser.name,
+      name: savedUser.name
     });
   } catch (error) {
     console.log(error);

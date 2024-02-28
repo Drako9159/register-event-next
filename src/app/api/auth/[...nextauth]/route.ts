@@ -27,6 +27,8 @@ const handler = NextAuth({
           userFound.password
         );
         if (!passwordMatch) throw new Error("Invalid credentials");
+        /*if (!userFound.confirmed)
+          throw new Error("User not confirmed. Access denied.");*/
         return userFound;
       },
     }),

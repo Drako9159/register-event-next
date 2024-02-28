@@ -1,7 +1,14 @@
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Toaster } from "@/components/ui/toaster";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+const formSchema = z.object({
+  email: z.string().email({ message: "Email is required" }),
+  password: z.string().min(4, { message: "Password incorrect" }),
+});
 import {
   Form,
   FormControl,
@@ -11,33 +18,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { FormEvent, useState } from "react";
-import { redirect, useRouter } from "next/navigation";
-import { getSession, signIn } from "next-auth/react";
-import axios, { AxiosError } from "axios";
-import { useToast } from "./ui/use-toast";
-import { Toaster } from "./ui/toaster";
-
-const formSchema = z.object({
-  email: z.string().email({ message: "Email is required" }),
-  password: z.string().min(4, { message: "Password incorrect" }),
-});
-
-interface FormLoginProps {
-  setIsLogin: (isLogin: boolean) => void;
-}
-
 interface UserDataLogin {
   email: string;
   password: string;
 }
-
-export default function FormLogin({ setIsLogin }: FormLoginProps) {
-  const [error, setError] = useState("");
-  const router = useRouter();
-
+export default function FormForgetPassword() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -55,30 +40,6 @@ export default function FormLogin({ setIsLogin }: FormLoginProps) {
       email: values.email,
       password: values.password,
     };
-
-    login(userData);
-  }
-
-  const { toast } = useToast();
-
-  async function login(values: UserDataLogin) {
-    const res = await signIn("credentials", {
-      email: values.email,
-      password: values.password,
-      redirect: false,
-    });
-    if (res?.error) {
-      console.log(res.error);
-      toast({ title: "Error", description: res.error as string });
-      return setError(res.error as string);
-    }
-    const user: any = await getSession();
-    if (res?.ok && user?.user?.confirmed!) {
-      toast({ title: "Approved", description: "You have access" });
-      return router.push("/profile");
-    } else {
-      return router.push("/validate-account");
-    }
   }
 
   return (
@@ -129,7 +90,7 @@ export default function FormLogin({ setIsLogin }: FormLoginProps) {
               </div>
               <button
                 type="button"
-                onClick={() => setIsLogin(false)}
+               
                 className="hover:underline text-blue-500 font-bold"
               >
                 Need an account?

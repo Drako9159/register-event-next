@@ -1,23 +1,25 @@
 "use client";
 
 import { Toaster } from "@/components/ui/toaster";
-import { SessionProvider, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
-interface userInfo {
+interface UserInfo {
   name: string;
   email: string;
 }
 
 export default function UserProfile() {
   const { data: session, status } = useSession();
-  const [userInfo, setUserInfo] = useState<userInfo>();
+  const [userInfo, setUserInfo] = useState<UserInfo>();
 
   useEffect(() => {
     if (session && session.user) {
+      console.log(session)
       setUserInfo({
         name: session.user.name as string,
         email: session.user.email as string,
+        
       });
     }
   }, [session]);
@@ -42,7 +44,7 @@ export default function UserProfile() {
             {userInfo?.email}
           </p>
 
-          {/* <pre>{JSON.stringify({ session, status }, null, 2)}</pre> */}
+          <pre>{JSON.stringify({ session, status }, null, 2)}</pre> 
         </div>
 
         <p>Use this code for register your visit</p>

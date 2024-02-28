@@ -21,6 +21,19 @@ const userSchema = new Schema({
     minLength: [3, "Name must be at least 3 characters"],
     maxLength: [50, "Name must be at most 50 characters"],
   },
+  confirmationToken: {
+    type: String,
+  },
+  confirmed: {
+    type: Boolean,
+    default: false,
+  },
+  blocked: { type: Boolean, default: false },
+  role: {
+    type: String,
+    enum: ["public", "admin"],
+    default: "public",
+  },
 });
 const User = models.User || model("User", userSchema);
 export default User;

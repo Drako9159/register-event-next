@@ -6,7 +6,6 @@ import { useState } from "react";
 
 export default function Authenticate() {
   const [isLogin, setIsLogin] = useState<boolean>(true);
-
   // return <FormLogin isLogin={isLogin}></FormLogin>;
-  return <div>{isLogin ? <FormLogin /> : <FormRegister />}</div>;
+  return <div>{isLogin ? <FormLogin setIsLogin={setIsLogin}/> : <FormRegister setIsLogin={setIsLogin}/>}</div>;
 }
