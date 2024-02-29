@@ -16,7 +16,7 @@ export async function POST(request: any) {
       { email: email },
       { $set: { blocked: false }, new: true }
     );
-    return NextResponse.json({ message: "User blocked" });
+    return NextResponse.json({ message: "User unlocked" });
   } catch (error) {
     console.log(error);
     if (error instanceof Error) {

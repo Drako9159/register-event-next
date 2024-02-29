@@ -21,14 +21,19 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "./ui/use-toast";
-import SendMail from "@/app/hooks/SendMailConfirmation";
 import { useRouter } from "next/navigation";
 import axios, { AxiosError } from "axios";
 import { useState } from "react";
-interface UserDataLogin {
+
+interface FormForgetPasswordValidateParams {
   email: string;
+  setIsValidate: (isValidate: boolean) => void;
 }
-export default function FormForgetPasswordValidate({ email }: any) {
+
+export default function FormForgetPasswordValidate({
+  email,
+  setIsValidate,
+}: FormForgetPasswordValidateParams) {
   const [error, setError] = useState<string>("");
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -59,7 +64,9 @@ export default function FormForgetPasswordValidate({ email }: any) {
         }
       );
       toast({ title: "Validate", description: "Change your password" });
-      if (res?.status) return router.push("/profile");
+      //if (res?.status) return router.push("/profile");
+      // validate user
+      setIsValidate(true);
     } catch (error) {
       console.log(error);
       if (error instanceof AxiosError) {

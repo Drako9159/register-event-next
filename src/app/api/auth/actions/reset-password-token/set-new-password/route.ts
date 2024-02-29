@@ -2,35 +2,29 @@ import { connectDB } from "@/lib/mongodb";
 import User from "@/models/user";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { sendCodeMail } from "@/lib/nodemailer";
-import { generateToken } from "@/lib/jwt";
-
-function generateRandomCode(): string {
-  const randomDecimal = Math.random();
-  const randomNumber = Math.floor(randomDecimal * 100000);
-  const randomCode = randomNumber.toString().padStart(5, "0");
-  return randomCode;
-}
 
 export async function POST(request: any) {
-  const { email } = await request.json();
+  const { email, password } = await request.json();
+  if (!password || password < 6) {
+    return NextResponse.json(
+      { message: "Password must be at least 6 characters" },
+      { status: 400 }
+    );
+  }
   if (!email)
     return NextResponse.json({ message: "Email is required" }, { status: 400 });
+
   try {
     await connectDB();
     const userFound = await User.findOne({ email });
     if (!userFound)
       return NextResponse.json({ message: "User not found" }, { status: 404 });
-
-    const code = generateRandomCode();
-    //const hashedToken = await bcrypt.hash(code, 12);
-    const tokenSigned = generateToken(code);
+    const hashedPassword = await bcrypt.hash(password, 12);
     await User.findOneAndUpdate(
       { email: email },
-      { $set: { resetPasswordToken: tokenSigned }, new: true }
+      { $set: { password: hashedPassword }, new: true }
     );
-    sendCodeMail(email, code);
-    return NextResponse.json({ message: "Token updated" });
+    return NextResponse.json({ message: "Password updated" });
   } catch (error) {
     console.log(error);
     if (error instanceof Error) {
@@ -38,5 +32,3 @@ export async function POST(request: any) {
     }
   }
 }
-
-
