@@ -3,7 +3,7 @@
 import QrCodeGenerator from "@/components/QrCodeGenerator";
 import { Toaster } from "@/components/ui/toaster";
 import axios from "axios";
-import { signOut, useSession } from "next-auth/react";
+import { getSession, signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 interface UserInfo {
@@ -14,21 +14,29 @@ interface UserInfo {
 export default function UserProfile() {
   const { data: session, status } = useSession();
   const [userInfo, setUserInfo] = useState<UserInfo>();
+  const [qrData, setQrData] = useState<string>("");
 
   useEffect(() => {
-    async function api(){
-      const response = await axios.post("/api/auth/actions/block/block-user", {email: "antonio.jar.dev@gmail.com"})
-      return response;
-    }
-    api()
-
     if (session && session.user) {
       setUserInfo({
         name: session.user.name as string,
         email: session.user.email as string,
       });
+      generate();
     }
   }, [session]);
+
+  async function generate() {
+    const session: any = await getSession();
+    const userId = session?.user?._id;
+    const response = await axios.post("/api/auth/actions/qr/generate-qr", {
+      userId,
+    });
+    if (response.status == 200) {
+      const { token } = response.data;
+      setQrData(token);
+    }
+  }
 
   return (
     <div className="flex items-center justify-center h-screen text-slate-700">
@@ -54,18 +62,17 @@ export default function UserProfile() {
         </div>
 
         <p>Use this code for register your visit</p>
-       
-       {/* <img
+
+        {/* <img
           draggable={false}
           src={
             "https://play-lh.googleusercontent.com/lomBq_jOClZ5skh0ELcMx4HMHAMW802kp9Z02_A84JevajkqD87P48--is1rEVPfzGVf"
           }
           alt="QR Code"
         /> */}
-<QrCodeGenerator />
+        <QrCodeGenerator data={qrData} />
 
-
-        <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
+        <button onClick={() => generate()} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
           Refresh code
         </button>
         <button
@@ -76,8 +83,6 @@ export default function UserProfile() {
         >
           Sign Out
         </button>
-
-        
       </div>
     </div>
   );

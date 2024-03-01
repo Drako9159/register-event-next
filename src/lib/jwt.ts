@@ -22,3 +22,23 @@ export function generateKey(): string {
   const newKey = sign({}, JWT_SECRET!);
   return newKey;
 }
+
+export function generateTokenQr(dataQr: any): string | null {
+  try {
+    const token = sign({ data: dataQr }, JWT_SECRET!, { expiresIn: "4h" });
+    return token;
+  } catch (error) {
+    console.error("Error in generate token", error);
+    return null;
+  }
+}
+
+export function decodeTokenQr(token: string): any | null {
+  try {
+    const dataDecoded = verify(token, JWT_SECRET!);
+    return dataDecoded;
+  } catch (error) {
+    console.error("Error in decode token", error);
+    return null;
+  }
+}

@@ -17,6 +17,9 @@ const qrCodeSchema = new Schema({
     type: Date,
     default: null,
   },
+  tokenData: {
+    type: String,
+  },
 });
 
 const QrCode = models.QrCode || model("QrCode", qrCodeSchema);
