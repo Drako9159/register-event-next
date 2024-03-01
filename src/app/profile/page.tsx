@@ -1,6 +1,8 @@
 "use client";
 
+import QrCodeGenerator from "@/components/QrCodeGenerator";
 import { Toaster } from "@/components/ui/toaster";
+import axios from "axios";
 import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
@@ -14,6 +16,12 @@ export default function UserProfile() {
   const [userInfo, setUserInfo] = useState<UserInfo>();
 
   useEffect(() => {
+    async function api(){
+      const response = await axios.post("/api/auth/actions/block/block-user", {email: "antonio.jar.dev@gmail.com"})
+      return response;
+    }
+    api()
+
     if (session && session.user) {
       setUserInfo({
         name: session.user.name as string,
@@ -46,13 +54,17 @@ export default function UserProfile() {
         </div>
 
         <p>Use this code for register your visit</p>
-        <img
+       
+       {/* <img
           draggable={false}
           src={
             "https://play-lh.googleusercontent.com/lomBq_jOClZ5skh0ELcMx4HMHAMW802kp9Z02_A84JevajkqD87P48--is1rEVPfzGVf"
           }
           alt="QR Code"
-        />
+        /> */}
+<QrCodeGenerator />
+
+
         <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
           Refresh code
         </button>
@@ -64,6 +76,8 @@ export default function UserProfile() {
         >
           Sign Out
         </button>
+
+        
       </div>
     </div>
   );

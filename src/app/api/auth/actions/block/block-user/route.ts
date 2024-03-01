@@ -1,15 +1,18 @@
 import { connectDB } from "@/lib/mongodb";
+import { validateIsAdminUser } from "@/middlewares/validateUserRoleNext";
 import User from "@/models/user";
+import { NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
-import { NextResponse } from "next/server";
+import { GetTokenParams, getToken } from "next-auth/jwt";
+import { getSession } from "next-auth/react";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(request: any, response: any) {
-  const { email } = await request.json();
+export async function POST(req: any, res: NextApiResponse) {
+  const validate = await validateIsAdminUser(req);
+  if (!validate)
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
-  // const session = await getServerSession(request, response, options)
-  // console.log(session)
-
-  
+  const { email } = await req.json();
 
   if (!email)
     return NextResponse.json({ message: "Email is required" }, { status: 400 });

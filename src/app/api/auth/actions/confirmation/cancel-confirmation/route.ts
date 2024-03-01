@@ -1,9 +1,14 @@
 import { connectDB } from "@/lib/mongodb";
+import { validateIsAdminUser } from "@/middlewares/validateUserRoleNext";
 import User from "@/models/user";
 import { NextResponse } from "next/server";
 
-export async function POST(request: any) {
-  const { email } = await request.json();
+export async function POST(req: any) {
+  const validate = await validateIsAdminUser(req);
+  if (!validate)
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+
+  const { email } = await req.json();
   if (!email)
     return NextResponse.json({ message: "Email is required" }, { status: 400 });
 

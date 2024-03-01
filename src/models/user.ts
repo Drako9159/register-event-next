@@ -37,6 +37,10 @@ const userSchema = new Schema({
     enum: ["public", "admin"],
     default: "public",
   },
+  currentQrCode: {
+    type: Schema.Types.ObjectId,
+    ref: "QrCode",
+  },
 });
 const User = models.User || model("User", userSchema);
 export default User;

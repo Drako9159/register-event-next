@@ -17,3 +17,8 @@ export function validateToken(token: string): string | null {
     return null;
   }
 }
+
+export function generateKey(): string {
+  const newKey = sign({}, JWT_SECRET!);
+  return newKey;
+}
